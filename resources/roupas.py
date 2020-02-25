@@ -60,15 +60,14 @@ class Roupa(Resource):
 
     def post(self, roupa_id):
         dados = Roupa.argumentos.parse_args()
-        roupa_objeto = RoupasModel(roupa_id, **dados)
-        nova_roupa = roupa_objeto.json()
+        nova_roupa = {'roupa_id': roupa_id, **dados}
+        #nova_roupa = {'roupa_id': roupa_id, **dados}
         roupas.append(nova_roupa)
-        return nova_roupa, 201
+        return nova_roupa, 200
 
     def put(self, roupa_id):
         dados = Roupa.argumentos.parse_args()
-        roupa_objeto = RoupasModel(roupa_id, **dados)
-        nova_roupa = roupa_objeto.json()
+        nova_roupa = {'roupa_id': roupa_id, **dados}
         roupa = Roupa.find_roupa(roupa_id)
         if roupa:
             roupa.update(nova_roupa)
