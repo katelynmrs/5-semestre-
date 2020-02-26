@@ -1,4 +1,5 @@
 from flask_restful import Resource, reqparse
+from models.roupas import RoupasModel
 
 roupas =      [
             {
@@ -20,22 +21,6 @@ roupas =      [
             'preco': 30.00
             }
 ]
-
-class RoupasModel:
-    def __init__(self, roupa_id, nome, cor, preco):
-        self.roupa_id = roupa_id
-        self.nome = nome
-        self.cor = cor
-        self.preco = preco
-
-    def json(self):
-        return {
-            'roupa_id': self.roupa_id,
-            'nome': self.nome,
-            'cor': self.cor,
-            'preco': self.preco
-        }
-
 class Roupas(Resource):
     def get(self):
         return {'roupas': roupas}
@@ -47,23 +32,20 @@ class Roupa(Resource):
     argumentos.add_argument('cor')
     argumentos.add_argument('preco')
 
-    def find_roupa(roupa_id):
-        for roupa in roupas:
-            if roupa['roupa_id'] == roupa_id:
-                return roupa
-        return None
     def get(self, roupa_id):
-        roupa = Roupa.find_roupa(roupa_id)
+        roupa = RoupasModel.find_roupa(roupa_id)
         if roupa:
             return roupa
         return {'message': 'A Roupa não foi encontrada.'}, 404 #Not Found
 
     def post(self, roupa_id):
+        if RoupasModel.find_roupa(roupa_id):
+            return {'message': 'A Roupa ID "{}" já existe.'.format(roupa_id)}, 400 #bad Request
         dados = Roupa.argumentos.parse_args()
-        nova_roupa = {'roupa_id': roupa_id, **dados}
-        #nova_roupa = {'roupa_id': roupa_id, **dados}
-        roupas.append(nova_roupa)
-        return nova_roupa, 200
+        roupa = RoupaModel(roupa_id, **dados)
+        roupa.save_roupa()
+        return roupa.json()
+
 
     def put(self, roupa_id):
         dados = Roupa.argumentos.parse_args()
