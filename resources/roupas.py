@@ -23,11 +23,10 @@ roupas =      [
 ]
 class Roupas(Resource):
     def get(self):
-        return {'roupas': roupas}
+        return {'roupas': [roupa.json() for roupa in RoupasModel.query.all()]}
 
 class Roupa(Resource):
     argumentos = reqparse.RequestParser()
-    argumentos.add_argument('roupa_id')
     argumentos.add_argument('nome')
     argumentos.add_argument('cor')
     argumentos.add_argument('preco')
@@ -35,29 +34,32 @@ class Roupa(Resource):
     def get(self, roupa_id):
         roupa = RoupasModel.find_roupa(roupa_id)
         if roupa:
-            return roupa
+            return roupa.json()
         return {'message': 'A Roupa não foi encontrada.'}, 404 #Not Found
 
     def post(self, roupa_id):
         if RoupasModel.find_roupa(roupa_id):
             return {'message': 'A Roupa ID "{}" já existe.'.format(roupa_id)}, 400 #bad Request
         dados = Roupa.argumentos.parse_args()
-        roupa = RoupaModel(roupa_id, **dados)
+        roupa = RoupasModel(roupa_id, **dados)
         roupa.save_roupa()
         return roupa.json()
 
 
     def put(self, roupa_id):
         dados = Roupa.argumentos.parse_args()
-        nova_roupa = {'roupa_id': roupa_id, **dados}
-        roupa = Roupa.find_roupa(roupa_id)
-        if roupa:
-            roupa.update(nova_roupa)
-            return nova_roupa, 200
-        roupas.append(nova_roupa)
-        return nova_roupa, 201 #created/criado
+        roupa_encontrada = RoupasModel.find_roupa(roupa_id)
+        if roupa_encontrada:
+            roupa_encontrada.update_roupa(**dados)
+            roupa_encontrada.save_roupa()
+            return roupa_encontrada.json(), 200
+        roupa = RoupasModel(roupa_id, **dados)
+        roupa.save_roupa()
+        return roupa.json(), 201 #created/criado
 
     def delete(self, roupa_id):
-        global roupas
-        roupas = [roupa for roupa in roupas if roupa['roupa_id'] != roupa_id]
-        return {'message': 'Hotel deletado.'}
+        roupa = RoupasModel.find_roupa(roupa_id)
+        if roupa:
+            roupa.delete_roupa()
+            return {'message': 'Camisa deletada.'}
+        return {'message': 'Camisa não existe.'}, 404

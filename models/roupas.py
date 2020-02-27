@@ -1,7 +1,7 @@
 from sql_alchemy import banco
 
 class RoupasModel(banco.Model):
-    __tablename__= 'roupas'
+    __tablename__ = 'roupas'
 
     roupa_id = banco.Column(banco.String, primary_key=True)
     nome = banco.Column(banco.String(100))
@@ -31,4 +31,13 @@ class RoupasModel(banco.Model):
 
     def save_roupa(self):
         banco.session.add(self)
+        banco.session.commit()
+
+    def update_roupa(self, nome, cor, preco):
+        self.nome = nome
+        self.cor = cor
+        self.preco = preco
+
+    def delete_roupa(self):
+        banco.session.delete(self)
         banco.session.commit()
