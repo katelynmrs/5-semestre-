@@ -27,8 +27,8 @@ class Roupas(Resource):
 
 class Roupa(Resource):
     argumentos = reqparse.RequestParser()
-    argumentos.add_argument('nome')
-    argumentos.add_argument('cor')
+    argumentos.add_argument('nome', type=str, required=True, help="O campo 'nome' não pode ficar em branco")
+    argumentos.add_argument('cor',type=str, required=True, help="O campo 'cor' não pode ficar em branco")
     argumentos.add_argument('preco')
 
     def get(self, roupa_id):
@@ -42,7 +42,10 @@ class Roupa(Resource):
             return {'message': 'A Roupa ID "{}" já existe.'.format(roupa_id)}, 400 #bad Request
         dados = Roupa.argumentos.parse_args()
         roupa = RoupasModel(roupa_id, **dados)
-        roupa.save_roupa()
+        try:
+            roupa.save_roupa()
+        except:
+            return {'message': 'Ocorreu um erro interno ao salvar a Roupa.'}, 500 # Internal Server Error
         return roupa.json()
 
 
@@ -54,12 +57,18 @@ class Roupa(Resource):
             roupa_encontrada.save_roupa()
             return roupa_encontrada.json(), 200
         roupa = RoupasModel(roupa_id, **dados)
-        roupa.save_roupa()
+        try:
+            roupa.save_roupa()
+        except:
+            return {'message': 'Ocorreu um erro interno ao salvar a Roupa.'}, 500 # Internal Server Error
         return roupa.json(), 201 #created/criado
 
     def delete(self, roupa_id):
         roupa = RoupasModel.find_roupa(roupa_id)
         if roupa:
-            roupa.delete_roupa()
+            try:
+                roupa.delete_roupa()
+            except:
+                return {'message': 'Ocorreu um erro interno ao deletar a Roupa'}, 500 # Internal Server Error
             return {'message': 'Camisa deletada.'}
         return {'message': 'Camisa não existe.'}, 404
