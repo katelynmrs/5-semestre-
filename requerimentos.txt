@@ -1,0 +1,8 @@
+Olá bem vindo ao sistema.
+
+Para você ter 100% de utilização do mesmo é necessário fazer o pip de algumas bibliotecas:
+
+pip install Flask
+pip install flask_restful
+pip install Flask_JWT-Extended
+pip install Flask-SQLAlchemy
