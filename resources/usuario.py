@@ -1,14 +1,14 @@
 from flask_restful import Resource, reqparse
 from models.usuario import UserModel
 from flask_jwt_extended import create_access_token, jwt_required, get_raw_jwt
-from werkzeug.security import safe_str_cmp
+from werkzeug.security import safe_str_cmp 
 from blacklist import BLACKLIST
 
 
 atributos = reqparse.RequestParser()
 atributos.add_argument('login', type=str, required=True, help="O campo 'login' não pode ser deixado em branco")
 atributos.add_argument('senha', type=str, required=True, help="O campo 'senha' não pode ser deixado em branco")
-atributos.add_argument('nome', type=str, required=True, help="O campo 'nome' não pode ser deixado em branco")
+atributos.add_argument('nome', type=str, required=False, help="O campo 'nome' não pode ser deixado em branco")
 
 class User(Resource):
     # /usuarios/{user_id}
@@ -48,7 +48,7 @@ class UserLogin(Resource):
 
         user = UserModel.find_by_login(dados['login'])
 
-        if user and safe_str_cmp(user.senha, dados['senha']):
+        if user and safe_str_cmp(user.senha, dados['senha']): #safe_str garante que a senha é igual a do banco
             token_de_acesso = create_access_token(identity=user.user_id)
             return {'access_token': token_de_acesso}, 200
         return {'message': 'O usuário ou senha está incorreto'}, 401 #Não será permitido.p

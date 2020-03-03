@@ -1,29 +1,71 @@
 from flask_restful import Resource, reqparse
 from models.roupas import RoupasModel
 from flask_jwt_extended import jwt_required
+import sqlite3 # a consulta ela é feita atrávez do banco
 
-roupas =      [
-            {
-            'roupa_id': 'calcajeans',
-            'nome' :'calca jeans',
-            'cor' : 'azul',
-            'preco': 45.00
-            },
-            {
-            'roupa_id': 'shorts',
-            'nome' :'shorts',
-            'cor' : 'preto',
-            'preco': 30.00
-            },
-            {
-            'roupa_id': 'shortsjeans',
-            'nome' :'shorts jeans',
-            'cor' : 'azul',
-            'preco': 30.00
-            }
-]
+def normalize_path_params(nome=None,
+                          cor=None,
+                          preco_min=0,
+                          preco_max=10000,
+                          limit = 50,
+                          offset= 0,**dados):
+    if nome or cor:
+        return {
+            'preco_min': preco_min,
+            'preco_max': preco_max,
+            'nome': nome,
+            'cor': cor,
+            'limit': limit,
+            'offset': offset}
+    return {
+            'preco_min': preco_min,
+            'preco_max': preco_max,
+            'limit': limit,
+            'offset': offset}
+
+# path/roupas?cor=vermelha&preco_min=50&preco_max=400 (exemplo de path)
+
+path_params = reqparse.RequestParser()
+path_params.add_argument('nome', type=str)
+path_params.add_argument('cor', type=str)
+path_params.add_argument('preco_min', type=float)
+path_params.add_argument('preco_max', type=float)
+path_params.add_argument('limit', type=float) # quantidade de item para exibir por pagina
+path_params.add_argument('offset', type=float) # quantidade de item que deseja pular
+
 class Roupas(Resource):
     def get(self):
+        connection = sqlite3.connect('banco.db')
+        cursor = connection.cursor()
+
+        dados = path_params.parse_args()
+        dados_validos = {chave:dados[chave] for chave in dados if dados[chave] is not None} #tratamento para dados validos, os dados que aperecem como NULL por exemplos não são validos.
+        parametros = normalize_path_params(**dados_validos)
+
+        if not parametros.get('nome' or 'cor'):
+            consulta = "SELECT * FROM roupas \
+            WHERE (preco > ? and preco < ?) \
+            LIMIT ? OFFSET ? "
+            tupla = tuple([parametros[chave] for chave in parametros]) # ele pega os argument na ordem
+            resultado = cursor.execute(consulta, tupla)
+        else:
+            consulta = "SELECT * FROM roupas \
+            WHERE (preco > ? and preco < ?) \
+            and nome = ? \
+            and cor = ? \
+            LIMIT ? OFFSET ? "
+            tupla = tuple([parametros[chave] for chave in parametros])
+            resultado = cursor.execute(consulta, tupla)
+
+        roupas = []
+        for linha in resultado:
+            roupas.append({
+                'roupa_id': linha[0],
+                'nome':linha[1],
+                'cor':linha[2],
+                'preco':linha[3]
+            })
+
         return {'roupas': [roupa.json() for roupa in RoupasModel.query.all()]}
 
 class Roupa(Resource):
