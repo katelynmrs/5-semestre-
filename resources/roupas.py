@@ -3,18 +3,20 @@ from models.roupas import RoupasModel
 from flask_jwt_extended import jwt_required
 import sqlite3 # a consulta ela é feita atrávez do banco
 
+roupa = []
+
 def normalize_path_params(nome=None,
-                          cor=None,
+                          #cor=None,
                           preco_min=0,
                           preco_max=10000,
                           limit = 50,
                           offset= 0,**dados):
-    if nome or cor:
+    if nome: #or cor:
         return {
             'preco_min': preco_min,
             'preco_max': preco_max,
             'nome': nome,
-            'cor': cor,
+            #'cor': cor,
             'limit': limit,
             'offset': offset}
     return {
@@ -27,7 +29,7 @@ def normalize_path_params(nome=None,
 
 path_params = reqparse.RequestParser()
 path_params.add_argument('nome', type=str)
-path_params.add_argument('cor', type=str)
+#path_params.add_argument('cor', type=str)
 path_params.add_argument('preco_min', type=float)
 path_params.add_argument('preco_max', type=float)
 path_params.add_argument('limit', type=float) # quantidade de item para exibir por pagina
@@ -42,18 +44,16 @@ class Roupas(Resource):
         dados_validos = {chave:dados[chave] for chave in dados if dados[chave] is not None} #tratamento para dados validos, os dados que aperecem como NULL por exemplos não são validos.
         parametros = normalize_path_params(**dados_validos)
 
-        if not parametros.get('nome' or 'cor'):
+        if not parametros.get('nome'):
             consulta = "SELECT * FROM roupas \
-            WHERE (preco > ? and preco < ?) \
+            WHERE (preco >= ? and preco <= ?) \
             LIMIT ? OFFSET ? "
             tupla = tuple([parametros[chave] for chave in parametros]) # ele pega os argument na ordem
             resultado = cursor.execute(consulta, tupla)
         else:
             consulta = "SELECT * FROM roupas \
-            WHERE (preco > ? and preco < ?) \
-            and nome = ? \
-            and cor = ? \
-            LIMIT ? OFFSET ? "
+            WHERE (preco >= ? and preco <= ?) \
+            and nome = ? LIMIT ? OFFSET ? "
             tupla = tuple([parametros[chave] for chave in parametros])
             resultado = cursor.execute(consulta, tupla)
 
@@ -66,12 +66,13 @@ class Roupas(Resource):
                 'preco':linha[3]
             })
 
-        return {'roupas': [roupa.json() for roupa in RoupasModel.query.all()]}
+        #return {'roupas': [roupa.json() for roupa in RoupasModel.query.all()]}
+        return {'roupas': roupas}
 
 class Roupa(Resource):
     argumentos = reqparse.RequestParser()
     argumentos.add_argument('nome', type=str, required=True, help="O campo 'nome' não pode ficar em branco")
-    argumentos.add_argument('cor',type=str, required=True, help="O campo 'cor' não pode ficar em branco")
+    argumentos.add_argument('cor',type=str, required=False, help="O campo 'cor' não pode ficar em branco")
     argumentos.add_argument('preco')
 
     def get(self, roupa_id):
@@ -80,7 +81,7 @@ class Roupa(Resource):
             return roupa.json()
         return {'message': 'A Roupa não foi encontrada.'}, 404 #Not Found
 
-    @jwt_required
+    #@jwt_required
     def post(self, roupa_id):
         if RoupasModel.find_roupa(roupa_id):
             return {'message': 'A Roupa ID "{}" já existe.'.format(roupa_id)}, 400 #bad Request
@@ -92,7 +93,7 @@ class Roupa(Resource):
             return {'message': 'Ocorreu um erro interno ao salvar a Roupa.'}, 500 # Internal Server Error
         return roupa.json()
 
-    @jwt_required
+    #@jwt_required
     def put(self, roupa_id):
         dados = Roupa.argumentos.parse_args()
         roupa_encontrada = RoupasModel.find_roupa(roupa_id)
