@@ -1,4 +1,4 @@
-from flask import Flask, jsonify
+from flask import Flask, jsonify, render_template
 from flask_restful import Api
 from resources.roupas import Roupas, Roupa
 from resources.usuario import User, UserRegister, UserLogin, UserLogout
@@ -24,7 +24,6 @@ def verifica_blacklist(token):
 @jwt.revoked_token_loader
 def token_de_acesso_invalidado():
     return jsonify({'message': 'Você foi deslogado'}), 401 #Unauthorized
-
 
 api.add_resource(Roupas, '/roupas')
 api.add_resource(Roupa, '/roupas/<string:roupa_id>')

@@ -1,24 +1,30 @@
 from flask_restful import Resource, reqparse
 from models.roupas import RoupasModel
 from flask_jwt_extended import jwt_required
-import sqlite3 # a consulta ela é feita atrávez do banco
+import sqlite3 # a consulta ela é feita atráves do banco
 
 roupa = []
 
 def normalize_path_params(nome=None,
-                          #cor=None,
+                          cor=None,
                           preco_min=0,
                           preco_max=10000,
                           limit = 50,
                           offset= 0,**dados):
-    if nome: #or cor:
+    if nome:
         return {
             'preco_min': preco_min,
             'preco_max': preco_max,
             'nome': nome,
-            #'cor': cor,
             'limit': limit,
             'offset': offset}
+    elif cor:
+        return {
+        'preco_min': preco_min,
+        'preco_max': preco_max,
+        'cor': cor,
+        'limit': limit,
+        'offset': offset}
     return {
             'preco_min': preco_min,
             'preco_max': preco_max,
@@ -29,7 +35,7 @@ def normalize_path_params(nome=None,
 
 path_params = reqparse.RequestParser()
 path_params.add_argument('nome', type=str)
-#path_params.add_argument('cor', type=str)
+path_params.add_argument('cor', type=str)
 path_params.add_argument('preco_min', type=float)
 path_params.add_argument('preco_max', type=float)
 path_params.add_argument('limit', type=float) # quantidade de item para exibir por pagina
@@ -44,16 +50,16 @@ class Roupas(Resource):
         dados_validos = {chave:dados[chave] for chave in dados if dados[chave] is not None} #tratamento para dados validos, os dados que aperecem como NULL por exemplos não são validos.
         parametros = normalize_path_params(**dados_validos)
 
-        if not parametros.get('nome'):
+        if not parametros.get('cor') and parametros.get('nome'):
             consulta = "SELECT * FROM roupas \
             WHERE (preco >= ? and preco <= ?) \
-            LIMIT ? OFFSET ? "
+            and nome = ? LIMIT ? OFFSET ?"
             tupla = tuple([parametros[chave] for chave in parametros]) # ele pega os argument na ordem
             resultado = cursor.execute(consulta, tupla)
         else:
             consulta = "SELECT * FROM roupas \
             WHERE (preco >= ? and preco <= ?) \
-            and nome = ? LIMIT ? OFFSET ? "
+            LIMIT ? OFFSET ?"
             tupla = tuple([parametros[chave] for chave in parametros])
             resultado = cursor.execute(consulta, tupla)
 
