@@ -1,0 +1,104 @@
+*{margin:0px; padding:0px;}
+body{background: silver;
+	color: black;
+	font:normal 12px verdana;
+	text-align: justify;
+}
+p{ background-color: white;
+	color: navy;
+	font-size: 12px;
+	padding: 12px 30px 16px 0px;
+	text-align: justify;
+}
+h1{
+	background-color: white;
+	color: black;
+	font-size: 14px;
+	padding-top:4px;
+	padding-bottom: 12px;
+}
+
+/**elementos estrutura*/
+#estrutura {
+	background: white;
+	color: black;
+	margin:0 auto; 
+	width:1024px;
+}
+
+/**elementos cabeçalho*/
+#cabecalho{background:teal;
+			color:aqua;
+			height: 80px;
+			margin: 0 auto;
+			width: 1024px;}
+
+/** titulo cabecalho*/
+#titulo-cabecalho{padding-top: 20px;}
+#titulo-cabecalho h1{background: teal;
+					color: aqua;
+					font-size: 30px;
+					text-align: center;}
+
+/** menu superior */
+#menu-superior{background: navy;
+				color:yellow;
+				border-top: 1px solid silver;
+				font-weight: bold;
+				font-size: 14px;
+				height: 44px;
+				margin: 0 auto;
+				padding: 0px 18px;
+				width:990px;}
+#menu-superior a {background:navy;
+				color: yellow;
+				line-height: 44px;
+				margin-right: 12px;
+				padding: 3px 4px;
+				text-decoration: none;
+			}
+
+#menu-superior a:hover{background:color;
+						color:white;}
+
+/** principal */
+#principal {display: table;}
+/** menu esquerdo */
+#menu-esquerdo {float:left;
+				width: 180px;}
+#menu-esquerdo ul {margin:0;
+					padding:0px;}
+#menu-esquerdo li {border-top: 1px solid silver;
+				font-size: 13px;
+				list-style: none; }
+
+#menu-esquerdo li a{background: navy;
+					color:white;
+					display: block;
+					padding: 8px 4px 4px 24px;
+					text-decoration: none;}
+#menu-esquerdo li a:hover{background: navy;
+						color: aqua;}
+
+/** conteudo */
+#conteudo {float: right;
+			margin-left: 20px;
+			padding-left: 12px;
+			padding-top: 12px;
+			width: 800px;}
+
+
+#rodape{background:teal;
+			color:aqua;
+			height: 50px;
+			margin: 0 auto;
+			width: 1024px;
+			text-align: center;
+			font-size: 25px;}
+
+
+
+/*-----------------------*/
+
+
+

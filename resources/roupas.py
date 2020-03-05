@@ -1,6 +1,7 @@
 from flask_restful import Resource, reqparse
 from models.roupas import RoupasModel
 from flask_jwt_extended import jwt_required
+from flask import render_template, make_response
 import sqlite3 # a consulta ela é feita atráves do banco
 
 roupa = []
@@ -73,18 +74,21 @@ class Roupas(Resource):
             })
 
         #return {'roupas': [roupa.json() for roupa in RoupasModel.query.all()]}
+        #headers = {'Content-Type': 'text/html'}
+        #return make_response(render_template('roupas.html', roupas = roupas), 200, headers)
         return {'roupas': roupas}
 
 class Roupa(Resource):
     argumentos = reqparse.RequestParser()
     argumentos.add_argument('nome', type=str, required=True, help="O campo 'nome' não pode ficar em branco")
-    argumentos.add_argument('cor',type=str, required=False, help="O campo 'cor' não pode ficar em branco")
+    argumentos.add_argument('cor',type=str, required=True, help="O campo 'cor' não pode ficar em branco")
     argumentos.add_argument('preco')
 
     def get(self, roupa_id):
         roupa = RoupasModel.find_roupa(roupa_id)
         if roupa:
-            return roupa.json()
+            headers = {'Content-Type': 'text/html'}
+            return make_response(render_template('roupa.html',nome = roupa.nome, cor = roupa.cor, preco = roupa.preco), 200, headers)
         return {'message': 'A Roupa não foi encontrada.'}, 404 #Not Found
 
     #@jwt_required

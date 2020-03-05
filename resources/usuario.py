@@ -1,7 +1,7 @@
 from flask_restful import Resource, reqparse
 from models.usuario import UserModel
 from flask_jwt_extended import create_access_token, jwt_required, get_raw_jwt
-from werkzeug.security import safe_str_cmp 
+from werkzeug.security import safe_str_cmp
 from blacklist import BLACKLIST
 
 
@@ -17,7 +17,7 @@ class User(Resource):
         if user:
             return user.json()
         return {'message': 'O usuário não foi encontrada.'}, 404 #Not Found
-    @jwt_required
+    #@jwt_required
     def delete(self, user_id):
         user = UserModel.find_user(user_id)
         if user:
@@ -41,7 +41,6 @@ class UserRegister(Resource):
         return {'message': 'Usuário criado com sucesso'}, 201 #Created
 
 class UserLogin(Resource):
-
     @classmethod
     def post(cls):
         dados = atributos.parse_args()
@@ -49,14 +48,13 @@ class UserLogin(Resource):
         user = UserModel.find_by_login(dados['login'])
 
         if user and safe_str_cmp(user.senha, dados['senha']): #safe_str garante que a senha é igual a do banco
-            token_de_acesso = create_access_token(identity=user.user_id)
-            return {'access_token': token_de_acesso}, 200
+            return {'message': 'Você entrou com sucesso'}, 200
         return {'message': 'O usuário ou senha está incorreto'}, 401 #Não será permitido.p
 
 class UserLogout(Resource):
 
-    @jwt_required
+    #jwt_required
     def post(self):
-        jwt_id = get_raw_jwt()['jti'] # JWT Token Identifier
-        BLACKLIST.add(jwt_id)
+        #jwt_id = get_raw_jwt()['jti'] # JWT Token Identifier
+        #BLACKLIST.add(jwt_id)
         return {'message': 'Logout feito com sucesso!'}, 200

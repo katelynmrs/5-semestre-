@@ -19,7 +19,7 @@ class RoupasModel(banco.Model):
             'roupa_id': self.roupa_id,
             'nome': self.nome,
             'cor': self.cor,
-            'preco': self.preco
+            'preco': self.preco,
         }
 
     @classmethod

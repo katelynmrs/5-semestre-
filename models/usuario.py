@@ -37,7 +37,7 @@ class UserModel(banco.Model):
     def save_user(self):
         banco.session.add(self)
         banco.session.commit()
-    
+
     def delete_user(self):
         banco.session.delete(self)
         banco.session.commit()
